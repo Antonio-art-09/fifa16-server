@@ -1,19 +1,15 @@
-import asyncio
-import database
+import os
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
-database.init_db()
+class SimpleHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        self.wfile.write(b"Servidor FIFA 16 en la nube activo.")
 
-async def handle_ps4(reader, writer):
-    print("¡PS4 conectada a FIFA 16 Online!")
-    data = await reader.read(100)
-    writer.write(b'\x00\x00\x00\x00\x00\x00\x00\x01')
-    await writer.drain()
-
-async def main():
-    server = await asyncio.start_server(handle_ps4, '0.0.0.0', 42127)
-    print("Servidor listo en la nube.")
-    async with server:
-        await server.serve_forever()
-
-if __name__ == "__main__":
-    asyncio.run(main())
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 10000))
+    server = HTTPServer(('0.0.0.0', port), SimpleHandler)
+    print(f"Servidor iniciado en el puerto {port}")
+    server.serve_forever()
